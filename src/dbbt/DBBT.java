@@ -827,10 +827,7 @@ class DinosaurBone {
         this.condition = condition_;
         horizontal = x;
         vertical = y;
-        coordinates = new Coordinates();
-        coordinates.latit = horizontal;
-        coordinates.longi = vertical;
-        coordinates.updatecoordinates();
+        coordinates = new Coordinates(x,y);
         this.country = country_;
         this.dimensions = dimensions_;
         this.weight = weight_;
