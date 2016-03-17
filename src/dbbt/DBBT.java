@@ -92,7 +92,7 @@ public class DBBT {
                 
                 temp = Bones.get(i);
                 
-                    System.out.printf("%d:%d|||lat%f:long%f-->%s\n", temp.coordinates.latitude_map, temp.coordinates.longitude_map,temp.coordinates.latitude_globe, temp.coordinates.longitude_globe, temp.name);
+                    System.out.printf("%d:%d|||lat%f:long%f-->%s\n", temp.coordinates.x, temp.coordinates.y,temp.coordinates.latit, temp.coordinates.longi, temp.name);
             }
         
         }
@@ -170,8 +170,8 @@ public class DBBT {
                     float price = this.Bones.get(i).price;
                     float weight = this.Bones.get(i).weight;
                     int bought = this.Bones.get(i).bought;
-                    double globe_longitude = this.Bones.get(i).coordinates.longitude_globe;
-                    double globe_latitude = this.Bones.get(i).coordinates.latitude_globe;
+                    float globe_longitude = this.Bones.get(i).coordinates.longi;
+                    float globe_latitude = this.Bones.get(i).coordinates.latit;
                     float length = this.Bones.get(i).dimensions.length;
                     float width = this.Bones.get(i).dimensions.width;
                     float height = this.Bones.get(i).dimensions.height;
@@ -327,7 +327,7 @@ public class DBBT {
             BoneFile = new File("Bones.txt");
             ScanFile = new Scanner(BoneFile);
             DinosaurBone TempBone;
-            Coordinate tempCoordinates;
+            Coordinates tempCoordinates = null;
             Dimension tempDimensions;
             
             while(ScanFile.hasNextLine()) {
@@ -349,8 +349,8 @@ public class DBBT {
                 int bone_bought = Integer.parseInt(data[4].trim());
                 
                 //for Coordinate class
-                double longitude_ = Double.parseDouble(data[5].trim());
-                double latitude_ = Double.parseDouble(data[6].trim());
+                float longitude_ = Float.parseFloat(data[5].trim());
+                float latitude_ = Float.parseFloat(data[6].trim());
                
                 //for Dimension class
                 float length_ = Float.parseFloat(data[7].trim());
@@ -364,14 +364,13 @@ public class DBBT {
                 String bone_prospector = data[14].trim();
                 
                 //make coordinate and dimension instances
-                tempCoordinates = new Coordinate(longitude_, latitude_); 
+                
                 tempDimensions = new Dimension(length_, width_, height_);
                 
                 //make TempBone
                 TempBone = new DinosaurBone(bone_id, bone_age, bone_price, 
                         bone_weight, bone_bought, bone_name, bone_condition,
-                        bone_country, bone_prospector, tempDimensions, 
-                        tempCoordinates); 
+                        bone_country, bone_prospector, tempDimensions, longitude_, latitude_); 
                 
 
                 //look for buyer
@@ -385,7 +384,7 @@ public class DBBT {
                         }
                     }
                 }
-                
+                 
                 //if buyer found, set/point Bone.buyer to that buyer
                 if(buyer_found) {
                     TempBone.buyer = this.buyers.get(buyer_index);
@@ -421,8 +420,9 @@ public class DBBT {
                 for(int i=0; i<this.Bones.size(); ++i) {
                     //get map info from bone arraylist
                     int bought = this.Bones.get(i).bought;
-                    int x = this.Bones.get(i).coordinates.longitude_map;
-                    int y = this.Bones.get(i).coordinates.latitude_map;
+                   
+                    int x = this.Bones.get(i).coordinates.y;
+                    int y = this.Bones.get(i).coordinates.x;
                     
                     //set symbol for bone in the map
                     this.map[x][y] = this.get_bone_map_symbol(bought);
@@ -804,26 +804,33 @@ class DinosaurBone {
     public float price; 
     public String name; 
     public String condition; 
-    public Coordinate coordinates; 
+    public Coordinates coordinates; 
     public String country; //   
     public Dimension dimensions; 
     public float weight; //In Kilograms
     public String prospector;
     public Buyer buyer; 
     int bought; 
+    float horizontal;
+    float vertical;
             
 
     public DinosaurBone(int bone_id, int age_, float price_, float weight_, 
                         int bought_, String name_, String condition_,
                         String country_, String prospector_,
-                        Dimension dimensions_, Coordinate coordinates_) 
+                        Dimension dimensions_, float y , float x) 
     {
         this.boneID = bone_id; 
         this.age = age_; 
         this.price = price_; 
         this.name = name_; 
         this.condition = condition_;
-        this.coordinates = coordinates_;
+        horizontal = x;
+        vertical = y;
+        coordinates = new Coordinates();
+        coordinates.latit = horizontal;
+        coordinates.longi = vertical;
+        coordinates.updatecoordinates();
         this.country = country_;
         this.dimensions = dimensions_;
         this.weight = weight_;
@@ -851,55 +858,7 @@ class Dimension { //Bone dimensions
 
 
 
-class Coordinate { //used for Bone Coordinates
-    public int longitude_map;
-    public int latitude_map;
-    public double longitude_globe;
-    public double latitude_globe;
 
-    public Coordinate(double longitude_globe_, double latitude_globe_) {
-        this.longitude_globe = longitude_globe_; //east to west
-        this.latitude_globe = latitude_globe_; //north to south
-        this.longitude_map = this.get_map_longitude(longitude_globe_);
-        this.latitude_map = this.get_map_latitude(latitude_globe_);
-    }
-    
-    public int get_map_longitude(double longitude) {
-        int temp = (int) longitude;
-        if(temp >= 0) {
-            if(temp == 0) {
-                temp = temp + 30;
-            }else {
-                temp = temp / 6;
-                temp = temp + 29 ;
-            }
-        }else {
-            
-            temp = temp/6 + 30;
-        } 
-        
-        return temp;
-    }
-    
-    public int get_map_latitude(double latitude) {
-        int temp = (int) latitude;
-        if(temp >= 0) {
-            if(temp == 0) {
-                temp = temp + 10;
-            }else {
-                temp = temp / 10;
-                temp = 9 - temp;
-            }
-        }else {
-            temp = temp * -1;
-            temp = temp/10;
-            temp = temp + 10;
-        } 
-        
-        return temp;
-    }
 
-}
-    
-    
+
     
